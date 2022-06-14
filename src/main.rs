@@ -13,7 +13,7 @@ use image::{
     io::Reader as ImageReader,
     ImageBuffer,
 };
-use notify_rust::{Notification, Timeout, Urgency};
+use notify_rust::{Notification, Urgency};
 use screenshots::ScreenCapturer;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
@@ -76,7 +76,6 @@ fn main() -> Result<()> {
             .summary("Christina")
             .body(&chi_sim)
             .icon("firefox")
-            .timeout(Timeout::Milliseconds(8_000))
             .urgency(Urgency::Critical)
             .show()?;
     }
