@@ -13,7 +13,7 @@ use image::{
     io::Reader as ImageReader,
     ImageBuffer,
 };
-use notify_rust::Notification;
+use notify_rust::{Notification, Urgency};
 use screenshots::ScreenCapturer;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
@@ -46,8 +46,8 @@ fn main() -> Result<()> {
         }
     };
 
-    let mut img = ImageReader::open(&filename)?.decode()?.to_rgba8();
-    let sub_img = imageops::crop_imm(&mut img, 0, 770, 1920, 310).to_image();
+    let img = ImageReader::open(&filename)?.decode()?.to_rgba8();
+    let sub_img = imageops::crop_imm(&img, 0, 770, 1920, 310).to_image();
     let cmap = MyLevel;
 
     let palletized = index_colors(&sub_img, &cmap);
@@ -71,14 +71,14 @@ fn main() -> Result<()> {
     if let Some(chi_sim) = translate::translate(&text) {
         // dbg!(&chi_sim);
         // text.push('\n');
-        text.push_str(&chi_sim);
+        // text.push_str(&chi_sim);
+        Notification::new()
+            .summary("Christina")
+            .body(&chi_sim)
+            .icon("firefox")
+            .urgency(Urgency::Critical)
+            .show()?;
     }
-
-    Notification::new()
-        .summary("Christina")
-        .body(&text)
-        .icon("firefox")
-        .show()?;
 
     Ok(())
 }

@@ -39,7 +39,7 @@ fn search(text: &str) -> Result<String> {
         .form(&params)
         .send()?;
 
-    dbg!(res.status());
+    // dbg!(res.status());
     let res_html = res.text()?;
 
     // dbg!(&res_html);

@@ -11,7 +11,7 @@ impl ColorMap for MyLevel {
         let rgba = color.0;
         let brightness =
             ((rgba[0] as u32 * 299) + (rgba[1] as u32 * 587) + (rgba[2] as u32 * 114)) / 1000;
-        if brightness > 250 {
+        if brightness > 195 {
             1
         } else {
             0
