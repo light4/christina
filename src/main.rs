@@ -8,6 +8,7 @@ use anyhow::Result;
 use arboard::Clipboard;
 use directories::ProjectDirs;
 use image::{
+    imageops,
     imageops::colorops::{index_colors, ColorMap},
     io::Reader as ImageReader,
     ImageBuffer,
@@ -45,11 +46,12 @@ fn main() -> Result<()> {
         }
     };
 
-    let img = ImageReader::open(&filename)?.decode()?.to_rgba8();
+    let mut img = ImageReader::open(&filename)?.decode()?.to_rgba8();
+    let sub_img = imageops::crop_imm(&mut img, 0, 770, 1920, 310).to_image();
     let cmap = MyLevel;
 
-    let palletized = index_colors(&img, &cmap);
-    let mapped = ImageBuffer::from_fn(img.width(), img.height(), |x, y| {
+    let palletized = index_colors(&sub_img, &cmap);
+    let mapped = ImageBuffer::from_fn(sub_img.width(), sub_img.height(), |x, y| {
         let p = palletized.get_pixel(x, y);
         cmap.lookup(p.0[0] as usize)
             .expect("indexed color out-of-range")
