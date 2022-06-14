@@ -6,6 +6,7 @@
 /// 6. translate
 use anyhow::Result;
 use arboard::Clipboard;
+use directories::ProjectDirs;
 use image::{
     imageops::colorops::{index_colors, ColorMap},
     io::Reader as ImageReader,
@@ -15,7 +16,12 @@ use notify_rust::Notification;
 use screenshots::ScreenCapturer;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
-use std::{fs::File, io::Write};
+use std::{
+    fs,
+    fs::File,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 mod color;
 mod translate;
@@ -23,12 +29,19 @@ mod translate;
 use color::MyLevel;
 
 fn main() -> Result<()> {
+    let proj_dirs =
+        ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
+    let cache_dir = proj_dirs.cache_dir();
+    if !cache_dir.exists() {
+        fs::create_dir_all(&cache_dir)?;
+    }
+
     let first_arg = std::env::args().nth(1);
     let filename = {
         if let Some(s) = first_arg {
-            s
+            PathBuf::from(s)
         } else {
-            capture_img()?
+            capture_img(cache_dir)?
         }
     };
 
@@ -42,11 +55,11 @@ fn main() -> Result<()> {
             .expect("indexed color out-of-range")
     });
 
-    let new_filename = "processed.jpg";
-    mapped.save(new_filename)?;
+    let new_filename = cache_dir.join("processed.jpg");
+    mapped.save(&new_filename)?;
 
     // tesseract empty.jpg test -l jpn
-    let mut text = tesseract::ocr(new_filename, "jpn")?;
+    let mut text = tesseract::ocr(new_filename.to_str().unwrap(), "jpn")?;
     text.retain(|c| c != ' ');
     dbg!(&text);
 
@@ -68,16 +81,17 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn capture_img() -> Result<String> {
+fn capture_img(path: &Path) -> Result<PathBuf> {
     let now = OffsetDateTime::now_local()?;
     let screen_capturers = ScreenCapturer::all();
     let screen_capturer = screen_capturers.first().unwrap();
     println!("capturer {:?}", screen_capturer);
     let image = screen_capturer.capture().unwrap();
     let buffer = image.png()?;
-    let path = now.format(&Rfc3339)? + ".png";
-    let mut file = File::create(&path)?;
+    let filename = now.format(&Rfc3339)? + ".png";
+    let abs_path = path.join(filename);
+    let mut file = File::create(&abs_path)?;
     file.write_all(&buffer[..])?;
 
-    Ok(path)
+    Ok(abs_path)
 }
