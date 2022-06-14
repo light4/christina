@@ -18,6 +18,7 @@ use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use std::{fs::File, io::Write};
 
 mod color;
+mod translate;
 
 use color::MyLevel;
 
@@ -57,6 +58,9 @@ fn main() -> Result<()> {
         .body(&text)
         .icon("firefox")
         .show()?;
+
+    let chi_sim = translate::translate(&text);
+    dbg!(&chi_sim);
 
     Ok(())
 }
