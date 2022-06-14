@@ -278,6 +278,7 @@ dependencies = [
  "screenshots",
  "tesseract",
  "time",
+ "tl",
 ]
 
 [[package]]
@@ -2096,6 +2097,12 @@ name = "tinyvec_macros"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
+
+[[package]]
+name = "tl"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b311b7751c4c49e04a8cd7d68251f12b687446c743b5acbdf22865e03d0fd80"
 
 [[package]]
 name = "tokio"

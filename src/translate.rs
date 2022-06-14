@@ -7,7 +7,7 @@ use reqwest::{
 
 use std::collections::HashMap;
 
-const MOCK_USER_AGENT: &'static str = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1";
+const MOCK_USER_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1";
 
 fn construct_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
@@ -48,11 +48,24 @@ fn search(text: &str) -> Result<String> {
 
 fn find_translated_from_html(html: &str) -> Option<String> {
     let re = Regex::new(r###"(?m)(?s)<ul id="translateResult".*?/ul>"###).unwrap();
-    re.find(&html).map(|mat| {
-        re.captures_iter(mat.as_str())
-            .map(|cap| format!("{}", &cap[0]))
-            .collect::<Vec<String>>()
+    re.find(html).map(|mat| {
+        let text = re
+            .captures_iter(mat.as_str())
+            .map(|cap| cap[0].to_string())
+            .collect::<Vec<_>>()
+            .join("");
+        let dom = tl::parse(&text, tl::ParserOptions::default()).unwrap();
+        let parser = dom.parser();
+
+        dom.nodes()
+            .iter()
+            .filter_map(|n| n.as_tag())
+            .filter(|n| n.name() == "li")
+            .map(|n| n.inner_text(parser))
+            .collect::<Vec<_>>()
             .join("\n")
+            .trim()
+            .into()
     })
 }
 

@@ -53,14 +53,17 @@ fn main() -> Result<()> {
     let mut clipboard = Clipboard::new()?;
     clipboard.set_text(text.clone())?;
 
+    if let Some(chi_sim) = translate::translate(&text) {
+        // dbg!(&chi_sim);
+        // text.push('\n');
+        text.push_str(&chi_sim);
+    }
+
     Notification::new()
         .summary("Christina")
         .body(&text)
         .icon("firefox")
         .show()?;
-
-    let chi_sim = translate::translate(&text);
-    dbg!(&chi_sim);
 
     Ok(())
 }
