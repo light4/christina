@@ -14,7 +14,7 @@ use image::{
     ImageBuffer,
 };
 use notify_rust::{Notification, Urgency};
-use screenshots::ScreenCapturer;
+use screenshots::Screen;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 use std::{
@@ -85,11 +85,11 @@ fn main() -> Result<()> {
 
 fn capture_img(path: &Path) -> Result<PathBuf> {
     let now = OffsetDateTime::now_local()?;
-    let screen_capturers = ScreenCapturer::all();
+    let screen_capturers = Screen::all();
     let screen_capturer = screen_capturers.first().unwrap();
     println!("capturer {:?}", screen_capturer);
     let image = screen_capturer.capture().unwrap();
-    let buffer = image.png()?;
+    let buffer = image.buffer();
     let filename = now.format(&Rfc3339)? + ".png";
     let abs_path = path.join(filename);
     let mut file = File::create(&abs_path)?;
