@@ -1,11 +1,11 @@
+use std::collections::HashMap;
+
 use anyhow::Result;
 use regex::Regex;
 use reqwest::{
     blocking::Client,
     header::{HeaderMap, HeaderValue, ACCEPT_LANGUAGE, ORIGIN, REFERER, USER_AGENT},
 };
-
-use std::collections::HashMap;
 
 const MOCK_USER_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1";
 

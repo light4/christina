@@ -1,3 +1,10 @@
+use std::{
+    fs,
+    fs::File,
+    io::Write,
+    path::{Path, PathBuf},
+};
+
 /// 1. capture screen
 /// 2. process image
 /// 3. ocr
@@ -17,13 +24,6 @@ use notify_rust::{Notification, Urgency};
 use screenshots::Screen;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
-use std::{
-    fs,
-    fs::File,
-    io::Write,
-    path::{Path, PathBuf},
-};
-
 mod color;
 mod translate;
 
@@ -34,7 +34,7 @@ fn main() -> Result<()> {
         ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
     let cache_dir = proj_dirs.cache_dir();
     if !cache_dir.exists() {
-        fs::create_dir_all(&cache_dir)?;
+        fs::create_dir_all(cache_dir)?;
     }
 
     let first_arg = std::env::args().nth(1);
@@ -46,7 +46,7 @@ fn main() -> Result<()> {
         }
     };
 
-    let img = ImageReader::open(&filename)?.decode()?.to_rgba8();
+    let img = ImageReader::open(filename)?.decode()?.to_rgba8();
     let sub_img = imageops::crop_imm(&img, 0, 770, 1920, 310).to_image();
     let cmap = MyLevel;
 
@@ -85,9 +85,9 @@ fn main() -> Result<()> {
 
 fn capture_img(path: &Path) -> Result<PathBuf> {
     let now = OffsetDateTime::now_local()?;
-    let screen_capturers = Screen::all();
+    let screen_capturers = Screen::all().expect("get all screen error");
     let screen_capturer = screen_capturers.first().unwrap();
-    println!("capturer {:?}", screen_capturer);
+    println!("capturer {screen_capturer:?}");
     let image = screen_capturer.capture().unwrap();
     let buffer = image.buffer();
     let filename = now.format(&Rfc3339)? + ".png";

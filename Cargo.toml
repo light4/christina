@@ -6,14 +6,20 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.58"
-arboard = "2.1.1"
-directories = "4.0.1"
-image = "0.24.2"
-notify-rust = "4.5.8"
-regex = "1.5.6"
-reqwest = { version = "0.11.11", features = ["blocking"] }
-screenshots = "0.3.0"
-tesseract = "0.12.0"
-time = { version = "0.3.11", features = ["formatting", "local-offset"] }
-tl = "0.7.5"
+anyhow = "1.0"
+arboard = "3.2"
+directories = "4.0"
+image = "0.24"
+notify-rust = "4.6"
+regex = "1.7"
+reqwest = { version = "0.11", features = ["blocking"] }
+screenshots = "0.4"
+tesseract = "0.12"
+time = { version = "0.3", features = ["formatting", "local-offset"] }
+tl = "0.7"
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
+# strip = "debuginfo"
+split-debuginfo = 'packed' # https://doc.rust-lang.org/rustc/codegen-options/index.html#split-debuginfo
