@@ -3,6 +3,10 @@
     windows_subsystem = "windows"
 )]
 
+mod color;
+mod sites;
+mod translate;
+
 use std::{
     fs,
     fs::File,
@@ -21,6 +25,7 @@ use anyhow::Context;
 /// 7. show a translate panel
 use anyhow::Result;
 use arboard::Clipboard;
+use color::MyLevel;
 use directories::ProjectDirs;
 use image::{
     imageops,
@@ -30,12 +35,8 @@ use image::{
 };
 use once_cell::sync::Lazy;
 use screenshots::Screen;
+use sites::web_get_translate_sites;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
-
-mod color;
-mod translate;
-
-use color::MyLevel;
 
 static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
@@ -126,7 +127,8 @@ fn main() -> Result<()> {
         .invoke_handler(tauri::generate_handler![
             web_translate,
             web_get_origin,
-            web_get_translated
+            web_get_translated,
+            web_get_translate_sites,
         ])
         .run(tauri::generate_context!())
         .context("error while running tauri application")?;

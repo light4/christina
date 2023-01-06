@@ -21,14 +21,46 @@
           document.getElementById("translated").value = response;
         });
 
+      function refresh_sites() {
+        const origin = document.getElementById("origin").value;
+        invoke("web_get_translate_sites", { origin: origin })
+          // `invoke` returns a Promise
+          .then((response) => {
+            console.log(response);
+
+            const origin_sites = document.getElementById("sites");
+            if (!!origin_sites) {
+              origin_sites.remove();
+            }
+            const new_sites = document.createElement("div");
+            new_sites.id = "sites";
+            const ul_node = document.createElement("ul");
+
+            for (sites of response) {
+              const node = document.createElement("li");
+              const a_node = document.createElement("a");
+              a_node.href = sites[1];
+              a_node.target = "_blank";
+              a_node.textContent = sites[0];
+              node.appendChild(a_node);
+              ul_node.appendChild(node);
+            }
+            new_sites.appendChild(ul_node);
+            document.body.appendChild(new_sites);
+          });
+      }
+
       function translate_text() {
         const origin = document.getElementById("origin").value;
         invoke("web_translate", { origin: origin })
           // `invoke` returns a Promise
           .then((response) => {
             document.getElementById("translated").value = response;
+            refresh_sites();
           });
       }
+
+      refresh_sites();
     </script>
     <div>
       <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>
@@ -36,5 +68,6 @@
       </textarea>
       <button onclick="translate_text()">翻译</button>
     </div>
+    <div name="sites" id="sites"></div>
   </body>
 </html>
