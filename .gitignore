@@ -1,3 +1,9 @@
 /target
 *.png
 *.jpg
+/dist
+.vscode
+.parcel-cache
+/prod
+/node_modules
+pnpm-lock.yaml
