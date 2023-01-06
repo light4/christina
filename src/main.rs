@@ -1,8 +1,11 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
+
 use std::{
     fs,
     fs::File,
     io::Write,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 /// 1. capture screen
@@ -20,11 +23,11 @@ use image::{
     io::Reader as ImageReader,
     ImageBuffer,
 };
-use notify_rust::{Notification, Urgency};
 use screenshots::Screen;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 mod color;
+mod panel;
 mod translate;
 
 use color::MyLevel;
@@ -61,23 +64,15 @@ fn main() -> Result<()> {
     mapped.save(&new_filename)?;
 
     // tesseract empty.jpg test -l jpn
-    let mut text = tesseract::ocr(new_filename.to_str().unwrap(), "jpn")?;
-    text.retain(|c| c != ' ');
-    dbg!(&text);
+    let mut origin = tesseract::ocr(new_filename.to_str().unwrap(), "jpn")?;
+    origin.retain(|c| c != ' ');
+    dbg!(&origin);
 
     let mut clipboard = Clipboard::new()?;
-    clipboard.set_text(text.clone())?;
+    clipboard.set_text(origin.clone())?;
 
-    if let Some(chi_sim) = translate::translate(&text) {
-        // dbg!(&chi_sim);
-        // text.push('\n');
-        // text.push_str(&chi_sim);
-        Notification::new()
-            .summary("Christina")
-            .body(&chi_sim)
-            .icon("firefox")
-            .urgency(Urgency::Critical)
-            .show()?;
+    if let Some(chi_sim) = translate::translate(&origin) {
+        panel::show(&origin, &chi_sim, Some(Duration::from_secs(60)));
     }
 
     Ok(())

@@ -9,14 +9,17 @@ edition = "2021"
 anyhow = "1.0"
 arboard = "3.2"
 directories = "4.0"
+eframe = { version = "0.20", default-features = false, features = [
+    "default_fonts",
+    "wgpu",
+] }
 image = "0.24"
-notify-rust = "4.6"
 regex = "1.7"
-reqwest = { version = "0.11", features = ["blocking"] }
 screenshots = "0.4"
 tesseract = "0.12"
 time = { version = "0.3", features = ["formatting", "local-offset"] }
 tl = "0.7"
+ureq = "2.6"
 
 [profile.release]
 lto = "thin"

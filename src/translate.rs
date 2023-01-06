@@ -2,45 +2,25 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use regex::Regex;
-use reqwest::{
-    blocking::Client,
-    header::{HeaderMap, HeaderValue, ACCEPT_LANGUAGE, ORIGIN, REFERER, USER_AGENT},
-};
 
 const MOCK_USER_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1";
 
-fn construct_headers() -> HeaderMap {
-    let mut headers = HeaderMap::new();
-    headers.insert(USER_AGENT, HeaderValue::from_static(MOCK_USER_AGENT));
-    // headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/x-www-form-urlencoded"));
-    headers.insert(ORIGIN, HeaderValue::from_static("https://m.youdao.com"));
-    headers.insert(
-        ACCEPT_LANGUAGE,
-        HeaderValue::from_static("zh-CN,en-US;q=0.7,en;q=0.3"),
-    );
-    headers.insert(
-        REFERER,
-        HeaderValue::from_static("https://m.youdao.com/translate"),
-    );
-    headers
-}
-
 fn search(text: &str) -> Result<String> {
     let url = "https://m.youdao.com/translate";
-    let client = Client::new();
 
     let mut params = HashMap::new();
     params.insert("inputtext", text);
     params.insert("type", "AUTO");
 
-    let res = client
-        .post(url)
-        .headers(construct_headers())
-        .form(&params)
-        .send()?;
+    let res = ureq::post(url)
+        .set("user-agent", MOCK_USER_AGENT)
+        .set("origin", "https://m.youdao.com")
+        .set("accept-language", "zh-CN,en-US;q=0.7,en;q=0.3")
+        .set("referer", url)
+        .send_form(&[("inputtext", text), ("type", "AUTO")])?;
 
     // dbg!(res.status());
-    let res_html = res.text()?;
+    let res_html = res.into_string()?;
 
     // dbg!(&res_html);
     Ok(res_html)
