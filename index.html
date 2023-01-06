@@ -14,6 +14,7 @@
         // `invoke` returns a Promise
         .then((response) => {
           document.getElementById("origin").value = response;
+          refresh_sites();
         });
       invoke("web_get_translated")
         // `invoke` returns a Promise
@@ -59,8 +60,6 @@
             refresh_sites();
           });
       }
-
-      refresh_sites();
     </script>
     <div>
       <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>
