@@ -6,34 +6,35 @@
     <title>Christina</title>
   </head>
   <body>
-    <h1>Welcome from Tauri!</h1>
     <script>
       // access the pre-bundled global API functions
       const { invoke } = window.__TAURI__.tauri;
 
       invoke("web_get_origin")
         // `invoke` returns a Promise
-        .then(
-          (response) => (document.getElementById("origin").innerText = response)
-        );
+        .then((response) => {
+          document.getElementById("origin").value = response;
+        });
       invoke("web_get_translated")
         // `invoke` returns a Promise
-        .then(
-          (response) =>
-            (document.getElementById("translated").innerText = response)
-        );
+        .then((response) => {
+          document.getElementById("translated").value = response;
+        });
 
-      function translate() {
-        console.log("todo");
-        invoke("web_get_translated", { name: "World" })
+      function translate_text() {
+        const origin = document.getElementById("origin").value;
+        invoke("web_translate", { origin: origin })
           // `invoke` returns a Promise
-          .then((response) => console.log(response));
+          .then((response) => {
+            document.getElementById("translated").value = response;
+          });
       }
     </script>
     <div>
-      <textarea name="origin" id="origin" cols="30" rows="10"> </textarea>
-      <textarea name="translated" id="translated" cols="30" rows="10">
+      <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>
+      <textarea name="translated" id="translated" cols="50" rows="4">
       </textarea>
+      <button onclick="translate_text()">翻译</button>
     </div>
   </body>
 </html>
