@@ -11,12 +11,29 @@
       // access the pre-bundled global API functions
       const { invoke } = window.__TAURI__.tauri;
 
-      // now we can call our Command!
-      // Right-click the application background and open the developer tools.
-      // You will see "Hello, World!" printed in the console!
-      invoke("greet", { name: "World" })
+      invoke("web_get_origin")
         // `invoke` returns a Promise
-        .then((response) => console.log(response));
+        .then(
+          (response) => (document.getElementById("origin").innerText = response)
+        );
+      invoke("web_get_translated")
+        // `invoke` returns a Promise
+        .then(
+          (response) =>
+            (document.getElementById("translated").innerText = response)
+        );
+
+      function translate() {
+        console.log("todo");
+        invoke("web_get_translated", { name: "World" })
+          // `invoke` returns a Promise
+          .then((response) => console.log(response));
+      }
     </script>
+    <div>
+      <textarea name="origin" id="origin" cols="30" rows="10"> </textarea>
+      <textarea name="translated" id="translated" cols="30" rows="10">
+      </textarea>
+    </div>
   </body>
 </html>
