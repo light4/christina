@@ -5,7 +5,6 @@ use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
-    time::Duration,
 };
 
 /// 1. capture screen
@@ -14,6 +13,7 @@ use std::{
 /// 4. process text
 /// 5. copy to clipboard
 /// 6. translate
+/// 7. show a translate panel
 use anyhow::Result;
 use arboard::Clipboard;
 use directories::ProjectDirs;
@@ -72,7 +72,7 @@ fn main() -> Result<()> {
     clipboard.set_text(origin.clone())?;
 
     if let Some(chi_sim) = translate::translate(&origin) {
-        panel::show(&origin, &chi_sim, Some(Duration::from_secs(60)));
+        panel::show(&origin, &chi_sim, None);
     }
 
     Ok(())

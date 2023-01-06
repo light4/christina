@@ -61,7 +61,7 @@ pub fn show(origin: &str, translated: &str, timeout: Option<Duration>) {
         transparent: true,
         always_on_top: true,
         min_window_size: Some(egui::vec2(320.0, 100.0)),
-        initial_window_size: Some(egui::vec2(320.0, 240.0)),
+        initial_window_size: Some(egui::vec2(320.0, 300.0)),
         ..Default::default()
     };
 
@@ -96,6 +96,21 @@ impl MyApp {
             timeout,
         }
     }
+
+    pub fn google_translate_url(&self) -> String {
+        format!(
+            "https://translate.google.com.hk/?sl=auto&tl=zh-CN&text={}&op=translate",
+            self.origin
+        )
+    }
+
+    pub fn youdao_url(&self) -> String {
+        "https://fanyi.youdao.com/index.html".to_string()
+    }
+
+    pub fn deepl_url(&self) -> String {
+        format!("https://www.deepl.com/translator#ja/zh/{}", self.origin)
+    }
 }
 
 impl eframe::App for MyApp {
@@ -108,6 +123,14 @@ impl eframe::App for MyApp {
             ui.heading(env!("CARGO_PKG_NAME"));
             ui.text_edit_multiline(&mut self.origin);
             ui.text_edit_multiline(&mut self.translated);
+
+            // links
+            ui.horizontal_wrapped(|ui| {
+                ui.spacing_mut().item_spacing.x = 10.0;
+                ui.hyperlink_to("Google", self.google_translate_url());
+                ui.hyperlink_to("YouDao", self.youdao_url());
+                ui.hyperlink_to("DeepL", self.deepl_url());
+            });
         });
         if let Some(d) = self.timeout {
             if self.creat_at.elapsed() > d {
