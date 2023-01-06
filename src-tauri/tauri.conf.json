@@ -32,7 +32,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "io.i01.christina",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -43,7 +43,12 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": [
+        "deb",
+        "msi",
+        "app",
+        "dmg"
+      ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
