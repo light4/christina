@@ -108,9 +108,8 @@ fn main() -> Result<()> {
 
     // tesseract empty.jpg test -l jpn
     let mut origin = tesseract::ocr(new_filename.to_str().unwrap(), "jpn")?;
-    origin.retain(|c| c != ' ');
+    origin.retain(|c| c != ' ' || c != '\n');
     {
-        dbg!(&origin);
         let mut lock = GLOBAL_ORIGIN.lock().unwrap();
         *lock = origin.clone();
     }
