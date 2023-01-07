@@ -5,6 +5,7 @@
 
 mod color;
 mod config;
+mod signal;
 mod sites;
 mod translate;
 mod web_cmds;
@@ -14,8 +15,7 @@ use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
-    sync::{Mutex, RwLock},
-    thread,
+    sync::{Arc, Mutex, RwLock},
 };
 
 use anyhow::Context;
@@ -46,7 +46,8 @@ use tauri::{
 
 const HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 
-static GLOBAL_CONFIG: Lazy<RwLock<Config>> = Lazy::new(|| RwLock::new(Config::new()));
+static GLOBAL_CONFIG: Lazy<Arc<RwLock<Config>>> =
+    Lazy::new(|| Arc::new(RwLock::new(Config::new())));
 static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
 static GLOBAL_TRANSLATED: Lazy<Mutex<String>> =
@@ -165,17 +166,6 @@ fn main() -> Result<()> {
         fs::create_dir_all(cache_dir)?;
     }
 
-    let mut signals = Signals::new([SIGINT])?;
-
-    let cache_dir_clone = cache_dir.to_owned();
-    thread::spawn(move || {
-        for sig in signals.forever() {
-            println!("Received signal {sig:?}");
-            let origin_image = capture_image(&cache_dir_clone).expect("capture image error");
-            do_the_job(origin_image).expect("unable to get the image content");
-        }
-    });
-
     let first_arg = std::env::args().nth(1);
     let origin_image = {
         if let Some(s) = first_arg {
@@ -197,6 +187,23 @@ fn main() -> Result<()> {
 
     use web_cmds::*;
     let app = tauri::Builder::default()
+        .setup(|app| {
+            let cache_dir = GLOBAL_CONFIG
+                .read()
+                .unwrap()
+                .proj_dirs
+                .cache_dir()
+                .to_owned();
+            let window = app.get_window("main").unwrap();
+            tauri::async_runtime::spawn_blocking(move || {
+                dbg!("spawn handle signals task");
+                let signals = Signals::new([SIGINT]).expect("register signals error");
+                signal::handle_signals(&cache_dir, signals, &window)
+                    .expect("error while handle signals");
+            });
+
+            Ok(())
+        })
         .system_tray(system_tray)
         .on_system_tray_event(system_tray_event_handler)
         .invoke_handler(tauri::generate_handler![
