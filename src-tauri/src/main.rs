@@ -38,11 +38,22 @@ use once_cell::sync::Lazy;
 use screenshots::Screen;
 use signal_hook::{consts::SIGINT, iterator::Signals};
 use sites::web_get_translate_sites;
+use tauri::{
+    AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
+    SystemTrayMenuItem,
+};
+
+const HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 
 static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
 static GLOBAL_TRANSLATED: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("对此，我当然很感兴趣。".to_string()));
+
+#[tauri::command]
+fn web_open_homepage() {
+    open::that(HOMEPAGE).unwrap();
+}
 
 #[tauri::command]
 fn web_translate(origin: &str) -> String {
@@ -129,6 +140,36 @@ fn do_the_job(origin_image: impl AsRef<Path>) -> Result<()> {
     Ok(())
 }
 
+pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
+    match event {
+        SystemTrayEvent::DoubleClick {
+            position: _,
+            size: _,
+            ..
+        } => {
+            println!("system tray received a double click");
+        }
+        SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+            "toggle" => {
+                let window = app.get_window("main").unwrap();
+                if window.is_visible().unwrap() {
+                    window.hide().unwrap();
+                } else {
+                    window.show().unwrap();
+                }
+            }
+            "about" => {
+                open::that(HOMEPAGE).unwrap();
+            }
+            "quit" => {
+                std::process::exit(0);
+            }
+            _ => {}
+        },
+        _ => {}
+    }
+}
+
 fn main() -> Result<()> {
     let proj_dirs =
         ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
@@ -159,15 +200,27 @@ fn main() -> Result<()> {
 
     do_the_job(origin_image)?;
 
-    tauri::Builder::default()
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(CustomMenuItem::new("toggle", "Toggle"))
+        .add_item(CustomMenuItem::new("about", "About"))
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(CustomMenuItem::new("quit", "Quit"));
+    let system_tray = SystemTray::new().with_menu(tray_menu);
+
+    let app = tauri::Builder::default()
+        .system_tray(system_tray)
+        .on_system_tray_event(system_tray_event_handler)
         .invoke_handler(tauri::generate_handler![
             web_translate,
             web_get_origin,
             web_get_translated,
             web_get_translate_sites,
+            web_open_homepage,
         ])
-        .run(tauri::generate_context!())
-        .context("error while running tauri application")?;
+        .build(tauri::generate_context!())
+        .context("error while building tauri application")?;
+
+    app.run(|_, _| {});
 
     Ok(())
 }
