@@ -44,7 +44,10 @@ use tauri::{
     SystemTrayMenuItem,
 };
 
+use crate::signal::signal_running;
+
 const HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
+const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
 static GLOBAL_CONFIG: Lazy<Arc<RwLock<Config>>> =
     Lazy::new(|| Arc::new(RwLock::new(Config::new())));
@@ -160,6 +163,11 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
 }
 
 fn main() -> Result<()> {
+    if let Some(pid) = signal_running() {
+        println!("Signal running, pid: {pid}");
+        std::process::exit(0);
+    }
+
     let config = GLOBAL_CONFIG.read().unwrap();
     let cache_dir = config.proj_dirs.cache_dir();
     if !cache_dir.exists() {

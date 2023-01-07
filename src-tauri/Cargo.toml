@@ -1,12 +1,12 @@
 [package]
-name = "chirstina"
+name = "christina"
 version = "0.1.0"
 description = "An assistant to help play with `STEINS;GATE`."
 authors = ["Light Ning <root@i01.io>"]
 license = "Apache-2.0/MIT"
 homepage = "https://github.com/light4/christina"
 repository = "https://github.com/light4/christina"
-default-run = "chirstina"
+default-run = "christina"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -30,6 +30,7 @@ screenshots = "0.4"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 signal-hook = "0.3"
+sysinfo = "0.27"
 tauri = { version = "1.2", features = ["clipboard-all", "shell-open", "system-tray"] }
 tesseract = "0.12"
 tl = "0.7"
