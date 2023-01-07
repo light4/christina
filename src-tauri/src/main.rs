@@ -4,6 +4,7 @@
 )]
 
 mod color;
+mod config;
 mod sites;
 mod translate;
 mod web_cmds;
@@ -13,7 +14,7 @@ use std::{
     fs::File,
     io::Write,
     path::{Path, PathBuf},
-    sync::Mutex,
+    sync::{Mutex, RwLock},
     thread,
 };
 
@@ -28,7 +29,7 @@ use anyhow::Context;
 use anyhow::Result;
 use arboard::Clipboard;
 use color::MyLevel;
-use directories::ProjectDirs;
+use config::Config;
 use image::{
     imageops,
     imageops::colorops::{index_colors, ColorMap},
@@ -45,6 +46,7 @@ use tauri::{
 
 const HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 
+static GLOBAL_CONFIG: Lazy<RwLock<Config>> = Lazy::new(|| RwLock::new(Config::new()));
 static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
 static GLOBAL_TRANSLATED: Lazy<Mutex<String>> =
@@ -128,6 +130,14 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
             println!("system tray received a double click");
         }
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+            "capture" => {
+                let config = GLOBAL_CONFIG.read().unwrap();
+                let cache_dir = config.proj_dirs.cache_dir();
+                let origin_image = capture_image(cache_dir).expect("capture image error");
+                do_the_job(origin_image).expect("unable to get the image content");
+                app.emit_all("reload_content", ())
+                    .expect("unable to send event: reload_content");
+            }
             "toggle" => {
                 let window = app.get_window("main").unwrap();
                 if window.is_visible().unwrap() {
@@ -149,19 +159,18 @@ pub fn system_tray_event_handler(app: &AppHandle, event: SystemTrayEvent) {
 }
 
 fn main() -> Result<()> {
-    let proj_dirs =
-        ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
-    let cache_dir = proj_dirs.cache_dir();
+    let config = GLOBAL_CONFIG.read().unwrap();
+    let cache_dir = config.proj_dirs.cache_dir();
     if !cache_dir.exists() {
         fs::create_dir_all(cache_dir)?;
     }
 
-    let mut signals = Signals::new(&[SIGINT])?;
+    let mut signals = Signals::new([SIGINT])?;
 
-    let cache_dir_clone = cache_dir.to_owned().clone();
+    let cache_dir_clone = cache_dir.to_owned();
     thread::spawn(move || {
         for sig in signals.forever() {
-            println!("Received signal {:?}", sig);
+            println!("Received signal {sig:?}");
             let origin_image = capture_image(&cache_dir_clone).expect("capture image error");
             do_the_job(origin_image).expect("unable to get the image content");
         }
@@ -179,6 +188,7 @@ fn main() -> Result<()> {
     do_the_job(origin_image)?;
 
     let tray_menu = SystemTrayMenu::new()
+        .add_item(CustomMenuItem::new("capture", "Capture"))
         .add_item(CustomMenuItem::new("toggle", "Toggle"))
         .add_item(CustomMenuItem::new("about", "About"))
         .add_native_item(SystemTrayMenuItem::Separator)
@@ -199,6 +209,8 @@ fn main() -> Result<()> {
         .build(tauri::generate_context!())
         .context("error while building tauri application")?;
 
+    #[allow(clippy::collapsible_match)]
+    #[allow(clippy::single_match)]
     app.run(|app_handle, event| match event {
         tauri::RunEvent::WindowEvent { label, event, .. } => match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
