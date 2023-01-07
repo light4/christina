@@ -13,6 +13,7 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
     sync::Mutex,
+    thread,
 };
 
 use anyhow::Context;
@@ -35,8 +36,8 @@ use image::{
 };
 use once_cell::sync::Lazy;
 use screenshots::Screen;
+use signal_hook::{consts::SIGINT, iterator::Signals};
 use sites::web_get_translate_sites;
-use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
@@ -60,39 +61,23 @@ fn web_get_translated() -> String {
     lock.to_string()
 }
 
-fn capture_img(path: &Path) -> Result<PathBuf> {
-    let now = OffsetDateTime::now_local()?;
+fn capture_image(path: impl AsRef<Path>) -> Result<PathBuf> {
+    let now = chrono::Local::now();
     let screen_capturers = Screen::all().expect("get all screen error");
     let screen_capturer = screen_capturers.first().unwrap();
     println!("capturer {screen_capturer:?}");
     let image = screen_capturer.capture().unwrap();
     let buffer = image.buffer();
-    let filename = now.format(&Rfc3339)? + ".png";
-    let abs_path = path.join(filename);
+    let filename = now.to_rfc3339() + ".png";
+    let abs_path = path.as_ref().join(filename);
     let mut file = File::create(&abs_path)?;
     file.write_all(&buffer[..])?;
 
     Ok(abs_path)
 }
 
-fn main() -> Result<()> {
-    let proj_dirs =
-        ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
-    let cache_dir = proj_dirs.cache_dir();
-    if !cache_dir.exists() {
-        fs::create_dir_all(cache_dir)?;
-    }
-
-    let first_arg = std::env::args().nth(1);
-    let filename = {
-        if let Some(s) = first_arg {
-            PathBuf::from(s)
-        } else {
-            capture_img(cache_dir)?
-        }
-    };
-
-    let img = ImageReader::open(filename)?.decode()?.to_rgba8();
+fn preprocess_image(path: impl AsRef<Path>) -> Result<PathBuf> {
+    let img = ImageReader::open(path.as_ref())?.decode()?.to_rgba8();
     let sub_img = imageops::crop_imm(&img, 0, 770, 1920, 310).to_image();
     let cmap = MyLevel;
 
@@ -103,12 +88,30 @@ fn main() -> Result<()> {
             .expect("indexed color out-of-range")
     });
 
-    let new_filename = cache_dir.join("processed.jpg");
+    let new_filename = path.as_ref().parent().unwrap().join("processed.jpg");
     mapped.save(&new_filename)?;
 
+    Ok(new_filename)
+}
+
+fn image_to_text(path: impl AsRef<Path>) -> Result<String> {
     // tesseract empty.jpg test -l jpn
-    let mut origin = tesseract::ocr(new_filename.to_str().unwrap(), "jpn")?;
+    let mut origin = tesseract::ocr(
+        path.as_ref()
+            .to_str()
+            .expect("unable read image path string"),
+        "jpn",
+    )?;
     origin.retain(|c| c != ' ' && c != '\n');
+
+    Ok(origin)
+}
+
+fn do_the_job(origin_image: impl AsRef<Path>) -> Result<()> {
+    let new_image = preprocess_image(origin_image)?;
+    let origin = image_to_text(new_image)?;
+    println!("origin text: {origin}");
+
     {
         let mut lock = GLOBAL_ORIGIN.lock().unwrap();
         *lock = origin.clone();
@@ -118,9 +121,43 @@ fn main() -> Result<()> {
     clipboard.set_text(origin.clone())?;
 
     if let Some(chi_sim) = translate::translate(&origin) {
+        println!("translated text: {chi_sim}");
         let mut lock = GLOBAL_TRANSLATED.lock().unwrap();
         *lock = chi_sim
     }
+
+    Ok(())
+}
+
+fn main() -> Result<()> {
+    let proj_dirs =
+        ProjectDirs::from("com", "i01", "christina").expect("cannot construct project directories");
+    let cache_dir = proj_dirs.cache_dir();
+    if !cache_dir.exists() {
+        fs::create_dir_all(cache_dir)?;
+    }
+
+    let mut signals = Signals::new(&[SIGINT])?;
+
+    let cache_dir_clone = cache_dir.to_owned().clone();
+    thread::spawn(move || {
+        for sig in signals.forever() {
+            println!("Received signal {:?}", sig);
+            let origin_image = capture_image(&cache_dir_clone).expect("capture image error");
+            do_the_job(origin_image).expect("unable to get the image content");
+        }
+    });
+
+    let first_arg = std::env::args().nth(1);
+    let origin_image = {
+        if let Some(s) = first_arg {
+            PathBuf::from(s)
+        } else {
+            capture_image(cache_dir)?
+        }
+    };
+
+    do_the_job(origin_image)?;
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
