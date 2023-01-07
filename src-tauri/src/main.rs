@@ -199,7 +199,19 @@ fn main() -> Result<()> {
         .build(tauri::generate_context!())
         .context("error while building tauri application")?;
 
-    app.run(|_, _| {});
+    app.run(|app_handle, event| match event {
+        tauri::RunEvent::WindowEvent { label, event, .. } => match event {
+            tauri::WindowEvent::CloseRequested { api, .. } => {
+                let window = app_handle
+                    .get_window(label.as_str())
+                    .expect("get window error");
+                window.hide().expect("hide window error");
+                api.prevent_close();
+            }
+            _ => {}
+        },
+        _ => {}
+    });
 
     Ok(())
 }
