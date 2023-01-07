@@ -14,4 +14,13 @@ Powered by <https://www.rust-lang.org> and <https://tauri.app>.
 cargo tauri build
 ```
 
+## Usage
+
+Set a global shortcut, start game and run.
+
+This tool will keep a system tray when close. Use system tray to quit.
+
+If it's already running when start, contents will reload.
+So just input shortcut when you want to use it.
+
 ![Okabe-Rintaro-and-Makise-Kurisu-Steins-Gate.png](./assets/Okabe-Rintaro-and-Makise-Kurisu-Steins-Gate.png)
