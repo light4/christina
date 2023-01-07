@@ -1,5 +1,4 @@
-#[tauri::command]
-pub fn web_get_translate_sites(origin: &str) -> Vec<(String, String)> {
+pub fn get_translate_sites(origin: &str) -> Vec<(String, String)> {
     let mut result = vec![];
     result.push((
         "Google".to_string(),

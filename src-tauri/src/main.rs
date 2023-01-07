@@ -6,6 +6,7 @@
 mod color;
 mod sites;
 mod translate;
+mod web_cmds;
 
 use std::{
     fs,
@@ -37,7 +38,6 @@ use image::{
 use once_cell::sync::Lazy;
 use screenshots::Screen;
 use signal_hook::{consts::SIGINT, iterator::Signals};
-use sites::web_get_translate_sites;
 use tauri::{
     AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu,
     SystemTrayMenuItem,
@@ -49,28 +49,6 @@ static GLOBAL_ORIGIN: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("それにも、当然ながら関心があった。".to_string()));
 static GLOBAL_TRANSLATED: Lazy<Mutex<String>> =
     Lazy::new(|| Mutex::new("对此，我当然很感兴趣。".to_string()));
-
-#[tauri::command]
-fn web_open_homepage() {
-    open::that(HOMEPAGE).unwrap();
-}
-
-#[tauri::command]
-fn web_translate(origin: &str) -> String {
-    translate::translate(origin).unwrap_or_else(|| "翻译出错了".to_string())
-}
-
-#[tauri::command]
-fn web_get_origin() -> String {
-    let lock = GLOBAL_ORIGIN.lock().unwrap();
-    lock.to_string()
-}
-
-#[tauri::command]
-fn web_get_translated() -> String {
-    let lock = GLOBAL_TRANSLATED.lock().unwrap();
-    lock.to_string()
-}
 
 fn capture_image(path: impl AsRef<Path>) -> Result<PathBuf> {
     let now = chrono::Local::now();
@@ -207,6 +185,7 @@ fn main() -> Result<()> {
         .add_item(CustomMenuItem::new("quit", "Quit"));
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
+    use web_cmds::*;
     let app = tauri::Builder::default()
         .system_tray(system_tray)
         .on_system_tray_event(system_tray_event_handler)
