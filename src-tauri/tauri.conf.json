@@ -11,15 +11,17 @@
     "version": "0.1.0"
   },
   "tauri": {
-    "allowlist": {
-      "all": false,
-      "clipboard": {
-        "all": true
-      },
-      "shell": {
-        "open": true
+    "windows": [
+      {
+        "alwaysOnTop": true,
+        "focus": true,
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "Christina",
+        "width": 800
       }
-    },
+    ],
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
@@ -58,22 +60,24 @@
         "timestampUrl": ""
       }
     },
+    "allowlist": {
+      "all": false,
+      "clipboard": {
+        "all": true
+      },
+      "shell": {
+        "open": true
+      }
+    },
     "security": {
       "csp": null
     },
     "updater": {
       "active": false
     },
-    "windows": [
-      {
-        "alwaysOnTop": true,
-        "focus": true,
-        "fullscreen": false,
-        "height": 600,
-        "resizable": true,
-        "title": "Christina",
-        "width": 800
-      }
-    ]
+    "systemTray": {
+      "iconPath": "icons/christina.png",
+      "iconAsTemplate": true
+    }
   }
 }
