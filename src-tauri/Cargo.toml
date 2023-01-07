@@ -1,6 +1,6 @@
 [package]
 name = "christina"
-version = "0.1.0"
+version = "0.2.0"
 description = "An assistant to help play with `STEINS;GATE`."
 authors = ["Light Ning <root@i01.io>"]
 license = "Apache-2.0/MIT"
