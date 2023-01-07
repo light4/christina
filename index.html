@@ -7,7 +7,7 @@
   </head>
   <body>
     <script type="module">
-      import { init, translate_text } from "./frontend/app.js";
+      import { init } from "./frontend/app.js";
 
       window.onload = init();
     </script>
@@ -15,7 +15,7 @@
       <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>
       <textarea name="translated" id="translated" cols="50" rows="4">
       </textarea>
-      <button onclick="translate_text()">翻译</button>
+      <button id="translate_button">翻译</button>
       <audio
         id="youdao_audio"
         controls

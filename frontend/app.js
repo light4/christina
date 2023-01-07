@@ -73,4 +73,8 @@ export async function init() {
     console.log(event);
     load_content();
   });
+
+  document
+    .querySelector("#translate_button")
+    .addEventListener("click", translate_text);
 }
