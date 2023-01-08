@@ -1,8 +1,8 @@
 use crate::{sites, translate, GLOBAL_ORIGIN, GLOBAL_TRANSLATED, HOMEPAGE};
 
 #[tauri::command]
-pub fn web_open_homepage() {
-    open::that(HOMEPAGE).unwrap();
+pub const fn web_get_homepage() -> &'static str {
+    HOMEPAGE
 }
 
 #[tauri::command]

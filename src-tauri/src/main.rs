@@ -219,7 +219,7 @@ fn main() -> Result<()> {
             web_get_origin,
             web_get_translated,
             web_get_translate_sites,
-            web_open_homepage,
+            web_get_homepage,
         ])
         .build(tauri::generate_context!())
         .context("error while building tauri application")?;
