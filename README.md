@@ -10,6 +10,8 @@ Check [result](./assets/2023-01-07.jpg)
 
 Powered by <https://www.rust-lang.org> and <https://tauri.app>.
 
+Depends on [tesseract](https://github.com/tesseract-ocr/tesseract).
+
 ```bash
 cargo tauri build
 ```
