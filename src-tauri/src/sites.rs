@@ -11,6 +11,11 @@ pub fn get_translate_sites(origin: &str) -> Vec<(String, String)> {
     ));
 
     result.push((
+        "Bing".to_string(),
+        format!("https://cn.bing.com/translator/?to=cn&text={origin}"),
+    ));
+
+    result.push((
         "DeepL".to_string(),
         format!("https://www.deepl.com/translator#ja/zh/{origin}"),
     ));
