@@ -4,7 +4,7 @@ An assistant to help play with [STEINS;GATE](https://store.steampowered.com/app/
 
 Take a screenshot then get the Japanese text and translate.
 
-Check [result](./assets/2023-01-07.jpg)
+![translated](./assets/2023-01-08.jpg)
 
 ## Build
 
