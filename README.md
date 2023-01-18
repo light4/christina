@@ -12,8 +12,10 @@ Powered by <https://www.rust-lang.org> and <https://tauri.app>.
 
 Depends on [tesseract](https://github.com/tesseract-ocr/tesseract).
 
+Refactored to use [wry](https://github.com/tauri-apps/wry) directly.
+
 ```bash
-cargo tauri build
+cargo build
 ```
 
 ## Usage

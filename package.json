@@ -6,7 +6,6 @@
     "build": "parcel build index.html --dist-dir prod"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.2.0"
   },
   "devDependencies": {
     "parcel": "latest"

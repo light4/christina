@@ -7,9 +7,10 @@
   </head>
   <body>
     <script type="module">
-      import { init } from "./frontend/app.js";
+      import { init, load_content } from "./frontend/app.js";
 
       window.onload = init();
+      window.load_content = load_content;
     </script>
     <div>
       <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>

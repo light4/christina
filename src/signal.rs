@@ -1,13 +1,11 @@
-use std::path::Path;
-
-use anyhow::Result;
+use color_eyre::Result;
 use signal_hook::{consts::signal::*, iterator::Signals};
 use sysinfo::{PidExt, ProcessExt, Signal, System, SystemExt};
-use tauri::{Manager, Window};
+use wry::application::event_loop::EventLoopProxy;
 
-use crate::{capture_image, do_the_job, PKG_NAME};
+use crate::{app::UserEvent, PKG_NAME};
 
-pub fn handle_signals(cache_dir: &Path, mut signals: Signals, window: &Window) -> Result<()> {
+pub fn handle_signals(mut signals: Signals, proxy: &EventLoopProxy<UserEvent>) -> Result<()> {
     dbg!("running handle signals task");
     for signal in signals.forever() {
         match signal {
@@ -16,11 +14,7 @@ pub fn handle_signals(cache_dir: &Path, mut signals: Signals, window: &Window) -
             }
             SIGINT => {
                 println!("Received signal {signal}");
-                let origin_image = capture_image(cache_dir).expect("capture image error");
-                do_the_job(origin_image).expect("unable to get the image content");
-                window
-                    .emit_all("reload_content", ())
-                    .expect("unable to send event: reload_content");
+                proxy.send_event(UserEvent::DoTheJobOnce)?;
             }
             SIGTERM | SIGQUIT => {
                 // Shutdown the system;
