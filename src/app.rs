@@ -181,8 +181,11 @@ pub fn run() -> Result<()> {
             Event::UserEvent(UserEvent::NewWindow(uri)) => {
                 open::that(&uri).unwrap_or_else(|e| eprintln!("open {uri} error {e:?}"));
             }
-            Event::UserEvent(UserEvent::DoTheJobOnce) => do_the_job_once(&webview)
-                .unwrap_or_else(|e| eprintln!("something wrong while process: {e:?}")),
+            Event::UserEvent(UserEvent::DoTheJobOnce) => {
+                println!("received do_the_job_once signal");
+                do_the_job_once(&webview)
+                    .unwrap_or_else(|e| eprintln!("something wrong while process: {e:?}"))
+            }
             // user event end
             Event::MenuEvent {
                 window_id: _,
@@ -206,6 +209,7 @@ pub fn run() -> Result<()> {
                     )
                 {
                     thread::sleep(Duration::from_secs(1));
+                    println!("received keyboard event: {}", key.physical_key);
                     do_the_job_once(&webview).expect("something wrong");
                 }
             }
