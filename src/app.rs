@@ -3,6 +3,7 @@ use std::{
     fs::{canonicalize, read},
     sync::{Arc, RwLock},
     thread,
+    time::Duration,
 };
 
 use color_eyre::Result;
@@ -201,10 +202,10 @@ pub fn run() -> Result<()> {
                         key.physical_key,
                         keyboard::KeyCode::Enter
                             | keyboard::KeyCode::Space
-                            | keyboard::KeyCode::NumpadEnter
+                            | keyboard::KeyCode::KeyC
                     )
                 {
-                    dbg!(key);
+                    thread::sleep(Duration::from_secs(1));
                     do_the_job_once(&webview).expect("something wrong");
                 }
             }
