@@ -7,9 +7,10 @@
   </head>
   <body>
     <script type="module">
-      import { init } from "./frontend/app.js";
+      import { init, load_content } from "./frontend/app.js";
 
       window.onload = init();
+      window.load_content = load_content;
     </script>
     <div>
       <textarea name="origin" id="origin" cols="50" rows="4"> </textarea>
@@ -19,16 +20,16 @@
       <audio
         id="youdao_audio"
         controls
+        autoplay
         src="https://dict.youdao.com/dictvoice?audio=%E3%81%BE%E3%81%8D%E3%81%9B%20%E3%81%8F%E3%82%8A%E3%81%99&le=jp"
+      ></audio>
+      <a
+        id="youdao_audio_link"
+        href="https://dict.youdao.com/dictvoice?audio=%E3%81%BE%E3%81%8D%E3%81%9B%20%E3%81%8F%E3%82%8A%E3%81%99&le=jp"
+        target="_blank"
       >
-        <a
-          id="youdao_audio_link"
-          href="https://dict.youdao.com/dictvoice?audio=%E3%81%BE%E3%81%8D%E3%81%9B%20%E3%81%8F%E3%82%8A%E3%81%99&le=jp"
-          target="_blank"
-        >
-          Download audio
-        </a>
-      </audio>
+        Download audio
+      </a>
     </div>
     <div name="sites" id="sites"></div>
   </body>

@@ -1,6 +1,6 @@
 [package]
 name = "christina"
-version = "0.2.1"
+version = "0.3.0"
 description = "An assistant to help play with `STEINS;GATE`."
 authors = ["Light Ning <root@i01.io>"]
 license = "Apache-2.0/MIT"
@@ -11,38 +11,28 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build-dependencies]
-tauri-build = { version = "1.2.1", features = [] }
-
 [dependencies]
-anyhow = "1.0"
 arboard = "3.2"
 chrono = { version = "0.4", default-features = false, features = [
     "std",
     "clock",
 ] }
+color-eyre = "0.6"
 directories = "4.0"
 image = "0.24"
 once_cell = "1.17"
 open = "3.2"
 regex = "1.7"
 screenshots = "0.4"
-serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_qs = "0.11"
 signal-hook = "0.3"
 sysinfo = "0.27"
-tauri = { version = "1.2", features = ["clipboard-all", "shell-open", "system-tray"] }
 tesseract = "0.12"
 tl = "0.7"
 ureq = "2.6"
-
-[features]
-# by default Tauri runs in production mode
-# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
-default = ["custom-protocol"]
-# this feature is used for production builds where `devPath` points to the filesystem
-# DO NOT remove this
-custom-protocol = ["tauri/custom-protocol"]
+wry = { version = "0.24", features = ["tray"] }
 
 [profile.release]
 lto = "thin"

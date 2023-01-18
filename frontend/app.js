@@ -1,7 +1,4 @@
-import { emit, listen } from "@tauri-apps/api/event";
-
-// access the pre-bundled global API functions
-const { invoke } = window.__TAURI__.tauri;
+const BASE_URI = "wry://localhost";
 
 export function refresh_sites() {
   const origin = document.getElementById("origin").value;
@@ -14,10 +11,13 @@ export function refresh_sites() {
   const audio_a_node = document.getElementById("youdao_audio_link");
   audio_a_node.href = audio_link;
 
-  invoke("web_get_translate_sites", { origin: origin })
+  fetch(
+    BASE_URI + "/sites.json" + "?" + new URLSearchParams({ origin: origin })
+  )
     // `invoke` returns a Promise
-    .then((response) => {
-      console.log(response);
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
 
       const origin_sites = document.getElementById("sites");
       if (!!origin_sites) {
@@ -27,12 +27,12 @@ export function refresh_sites() {
       new_sites.id = "sites";
       const ul_node = document.createElement("ul");
 
-      for (sites of response) {
+      for (var sites of data) {
         const node = document.createElement("li");
         const a_node = document.createElement("a");
-        a_node.href = sites[1];
+        a_node.href = sites.url;
         a_node.target = "_blank";
-        a_node.textContent = sites[0];
+        a_node.textContent = sites.brand;
         node.appendChild(a_node);
         ul_node.appendChild(node);
       }
@@ -43,36 +43,32 @@ export function refresh_sites() {
 
 export function translate_text() {
   const origin = document.getElementById("origin").value;
-  invoke("web_translate", { origin: origin })
+  fetch(
+    BASE_URI + "/translate.json" + "?" + new URLSearchParams({ origin: origin })
+  )
     // `invoke` returns a Promise
-    .then((response) => {
-      document.getElementById("translated").value = response;
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      document.getElementById("translated").value = data.translated;
       refresh_sites();
     });
 }
 
 export function load_content() {
-  invoke("web_get_origin")
+  fetch(BASE_URI + "/data.json")
     // `invoke` returns a Promise
-    .then((response) => {
-      document.getElementById("origin").value = response;
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      document.getElementById("origin").value = data.origin;
+      document.getElementById("translated").value = data.translated;
       refresh_sites();
-    });
-  invoke("web_get_translated")
-    // `invoke` returns a Promise
-    .then((response) => {
-      document.getElementById("translated").value = response;
     });
 }
 
 export async function init() {
   load_content();
-
-  const unlisten = await listen("reload_content", (event) => {
-    console.log("received event: ");
-    console.log(event);
-    load_content();
-  });
 
   document
     .querySelector("#translate_button")

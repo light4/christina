@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::Result;
+use color_eyre::Result;
 use regex::Regex;
 
 const MOCK_USER_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1";
@@ -50,9 +50,7 @@ fn find_translated_from_html(html: &str) -> Option<String> {
 }
 
 pub fn translate(text: &str) -> Option<String> {
-    if let Ok(html) = search(text) {
-        find_translated_from_html(&html)
-    } else {
-        None
-    }
+    search(text)
+        .ok()
+        .and_then(|i| find_translated_from_html(&i))
 }
