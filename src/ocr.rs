@@ -55,7 +55,13 @@ pub fn image_to_text(path: impl AsRef<Path>) -> Result<String> {
             .expect("unable read image path string"),
         "jpn",
     )?;
-    origin.retain(|c| c != ' ' && c != '\n');
+    origin.retain(|c| c != ' ' && c != '\n' && c != '`' && c != '「' && c != '」');
+
+    // remove trailing char
+    let chars: Vec<char> = origin.chars().collect();
+    if chars.len() > 3 && chars.get(chars.len() - 2) == Some(&'。') {
+        origin.pop();
+    }
 
     Ok(origin)
 }
