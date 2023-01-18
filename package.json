@@ -5,9 +5,7 @@
     "start": "parcel index.html",
     "build": "parcel build index.html --dist-dir prod"
   },
-  "dependencies": {
-  },
   "devDependencies": {
-    "parcel": "latest"
+    "parcel": "^2.8.2"
   }
 }
