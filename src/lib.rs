@@ -34,7 +34,10 @@ use crate::{
 
 const HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+#[cfg(debug_assertions)]
 const INDEX_PAGE: &[u8] = include_bytes!("../index.html");
+#[cfg(not(debug_assertions))]
+const INDEX_PAGE: &[u8] = include_bytes!("../prod/index.html");
 
 static GLOBAL_CONFIG: Lazy<Arc<RwLock<Config>>> =
     Lazy::new(|| Arc::new(RwLock::new(Config::new())));

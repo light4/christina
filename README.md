@@ -15,7 +15,10 @@ Depends on [tesseract](https://github.com/tesseract-ocr/tesseract).
 Refactored to use [wry](https://github.com/tauri-apps/wry) directly.
 
 ```bash
+# for debug
 cargo build
+# for release
+pnpm build && cargo build --release
 ```
 
 ## Usage
