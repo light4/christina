@@ -6,6 +6,6 @@
     "build": "parcel build index.html --dist-dir prod"
   },
   "devDependencies": {
-    "parcel": "^2.8.2"
+    "parcel": "^2.8.3"
   }
 }
