@@ -27,6 +27,11 @@ Set a global shortcut, start game and run.
 
 This tool will keep a system tray when close. Use system tray to quit.
 
+Program will listen to keyboard events: when `space/enter/m` released, will trigger the
+work flow.
+
+`Capture screen -> process image -> OCR -> translate -> reload content.`
+
 If it's already running when start, contents will reload.
 So just input shortcut when you want to use it.
 

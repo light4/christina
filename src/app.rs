@@ -205,7 +205,7 @@ pub fn run() -> Result<()> {
                         key.physical_key,
                         keyboard::KeyCode::Enter
                             | keyboard::KeyCode::Space
-                            | keyboard::KeyCode::KeyC
+                            | keyboard::KeyCode::KeyM
                     )
                 {
                     thread::sleep(Duration::from_secs(1));
