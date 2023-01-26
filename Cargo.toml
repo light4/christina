@@ -32,7 +32,7 @@ sysinfo = "0.27"
 tesseract = "0.12"
 tl = "0.7"
 ureq = "2.6"
-wry = { version = "0.24", features = ["tray"] }
+wry = { version = "0.25", features = ["tray"] }
 
 [profile.release]
 lto = "thin"
