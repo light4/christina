@@ -18,24 +18,27 @@ chrono = { version = "0.4", default-features = false, features = [
     "clock",
 ] }
 color-eyre = "0.6"
-directories = "4.0"
+directories = "5.0"
 image = "0.24"
 once_cell = "1.17"
-open = "3.2"
+open = "4.0"
 regex = "1.7"
-screenshots = "0.4"
+screenshots = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-serde_qs = "0.11"
+serde_qs = "0.12"
 signal-hook = "0.3"
-sysinfo = "0.27"
-tesseract = "0.12"
+sysinfo = "0.28"
+tesseract = "0.13"
 tl = "0.7"
 ureq = "2.6"
-wry = { version = "0.25", features = ["tray"] }
+wry = { version = "0.27", features = ["tray"] }
 
 [profile.release]
 lto = "thin"
 codegen-units = 4
 # strip = "debuginfo"
 split-debuginfo = 'packed' # https://doc.rust-lang.org/rustc/codegen-options/index.html#split-debuginfo
+
+[patch.crates-io]
+xcb = { git = "https://github.com/light4/rust-xcb", branch = "fix_align" }
