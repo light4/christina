@@ -39,6 +39,3 @@ lto = "thin"
 codegen-units = 4
 # strip = "debuginfo"
 split-debuginfo = 'packed' # https://doc.rust-lang.org/rustc/codegen-options/index.html#split-debuginfo
-
-[patch.crates-io]
-xcb = { git = "https://github.com/light4/rust-xcb", branch = "fix_align" }
